@@ -3,7 +3,7 @@
 <p align="center">
   <img src="DSGS-02.png" >
 </p>
-# **Observaciones** 
+#  **Observaciones** 
 
 
 
