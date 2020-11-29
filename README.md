@@ -10,6 +10,6 @@
 
 ---
 #  Import Blogs as blg
-* **Escuela de Datos Vivos:**https://bit.ly/eddvblog
-* **Sigmoidal:**https://bit.ly/sigmoidalai
-* **Data Hackers:**https://bit.ly/datahackerbr
+* **Escuela de Datos Vivos:** https://bit.ly/eddvblog
+* **Sigmoidal:** https://bit.ly/sigmoidalai
+* **Data Hackers:** https://bit.ly/datahackerbr
