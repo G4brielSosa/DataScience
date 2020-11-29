@@ -3,5 +3,13 @@
 <p align="center">
   <img src="DSGS-02.png" >
 </p>
+# Observaciones
 
-#  Gabriel Sosa - Data Analyst 
+
+
+
+---
+#  Import Blogs as blg
+* **Escuela de Datos Vivos:**https://bit.ly/eddvblog
+* **Sigmoidal:**https://bit.ly/sigmoidalai
+* **Data Hackers:**https://bit.ly/datahackerbr
