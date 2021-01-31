@@ -10,7 +10,7 @@
 * **Detección de fraudes con tarjetas de crédito:** https://bit.ly/cc_project
 * **Universo Vinos:** https://bit.ly/wineprojet
 * **Sistemas de bicicletas compartidas:** https://bit.ly/bsh_project
-
+* **Análisis explratorio Sumer Market:** http://bit.ly/SupMrkt
 
 
 ---
