@@ -11,6 +11,7 @@
 * **Universo Vinos:** https://bit.ly/wineprojet
 * **Sistemas de bicicletas compartidas:** https://bit.ly/bsh_project
 * **Análisis explratorio Super Market:** http://bit.ly/SupMrkt
+* **Fuga de clientes - Predicción:** http://bit.ly/Churn_Data_Analysis
 
 
 ---
