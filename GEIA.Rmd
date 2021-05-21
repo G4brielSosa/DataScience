@@ -1,0 +1,328 @@
+---
+title: "Gases de Efecto Invernadero"
+author: "Gabriel Sosa"
+date: "`r Sys.Date()`"
+output: rmdformats::downcute
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+```{r include=FALSE}
+install.packages("htmltools" ,repos="http://cran.us.r-project.org")
+```
+```{r include=FALSE}
+library(htmltools)
+library(rmarkdown)
+library(knitr)
+library(htmltools)
+library(xfun)
+library(quantmod)
+```
+```{r include=FALSE}
+packageVersion("htmltools")
+```
+
+
+# <FONT COLOR="D24E2E"> **Los gases de efecto invernadero**</FONT>
+<CENTER></CENTER>
+<div>
+<p style = 'text-align:center;'>
+<img src="https://www.elindependiente.com/wp-content/uploads/2018/06/humo-co2.jpg" alt="2021" width="600" height = "420">
+</p>
+</div>  
+
+Los gases de efecto invernadero (GEI) son gases emitidos de forma natural y antropogénica
+(emitidos por la actividad humana) cuya presencia contribuye al efecto invernadero
+Los gases de efecto invernadero son aquellos gases que se acumulan en la atmósfera de la Tierra 
+y que absorben la energía infrarroja del Sol. 
+Esto crea el denominado efecto invernadero, que contribuye al calentamiento global 
+Son gases que se encuentran presentes en la atmósfera terrestre y que dan lugar al fenómeno denominado
+efecto invernadero. Su concentración atmosférica es baja, pero tienen una importancia fundamental
+en el aumento de la temperatura del aire próximo al suelo, haciéndola permanecer en un rango 
+de valores aptos para la existencia de vida en el planeta.
+ 
+Los importantes son: vapor de agua, dióxido de carbono (CO2) metano (CH4),
+óxido nitroso (N2O) clorofluorcarbonos (CFC) y ozono (O3).
+
+En este proyecto de serie de tiempo pronosticaremos para los proximos 10 años el
+Inventario total de GEI de la República Argentina dividido por la cantidad de habitantes (población total).    
+
+
+El objetivo en comprender con un background inicial, uniendo piezas entendiendo que no hay una manera
+correcta de encarar un análisis a medida que nos hacemos pregusntas vamos investigando: comunidad, blogs, youtube, etc
+
+- *El primer apoyo* [Escuela de datos vivos](https://escueladedatosvivos.ai/) 
+
+- *Libro* [A little book of R for time series](https://a-little-book-of-r-for-time-series.readthedocs.io/en/latest/src/timeseries.html)
+
+- *Dataset* [datos.gob.ar](https://datos.gob.ar/dataset/ambiente-indicadores-emisiones-gases-efecto-invernadero-gei/archivo/ambiente_f02bced4-8cd2-487e-b4e9-4443a83a2539)
+
+- *Canal* [Lic. Lourdes Cuellar](https://www.youtube.com/channel/UC25LYleJ9taa5CTcEGvE_0A)
+
+
+## **Librerías** 
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+library(funModeling)
+library(lubridate)
+library(tidyverse)
+library(forecast)
+library(fpp2)
+library(tseries)
+```
+
+## Cargamos el dataset
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+url="http://datos.ambiente.gob.ar/dataset/09924bea-0458-4777-ab54-e74cbc5d3e8e/resource/f02bced4-8cd2-487e-b4e9-4443a83a2539/download/emisiones-gei-por-habitante_dncc.csv"
+gei= read.csv(url, stringsAsFactors = FALSE, sep = ";")
+```
+
+*Convertimos de dataframe a Serie de Tiempo: para este caso sólo necesitamos $emiciones_gei_habitante*
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+gei_ts=ts(gei$emisiones_gei_habitante, start=c(1990,1), frequency = 1)
+```
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+class(gei_ts)
+```
+
+Una manera rápida de verificar el inicio y el fin de la serie de tiempo
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+start(gei_ts);end(gei_ts)
+                  
+```
+# Vizualizaciones
+Si bien podríamos utilizar ggplot2 vamos a realizarlo con la función plot
+
+- [Fuente I](https://r-coder.com/plot-en-r/)
+- [Fuente II](https://bookdown.org/jboscomendoza/r-principiantes4/la-funcion-plot.html)  
+
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+#par(bg = "#3a4757",mfrow=c(4,2), mar=c(4,4,4,1)+.1)
+par(bg = "#3a4757")##33516d
+plot(gei_ts,main="Gases de efecto invernadero",
+     sub = " ",
+     xlab = " ",
+     ylab=" ",
+     las = 1,
+     lwd = 3,
+     col="#D24E2E",
+     col.main = "#E2E5F2",
+     col.sub = "#E2E5F2",
+     col.lab = "#E2E5F2",
+     col.axis = "#B610A4",
+     cex.axis = 0.5, # Tamaño de las etiquetas de los ticks de los ejes
+     cex.sub = 1,    #Tamaño del subtítulo
+     cex.main = 2,   # Tamaño del título
+     fg = "#2F90BA")
+```
+
+
+
+"Lo que buscamos es que nuestra serie sea estacionaria"
+Requerimos que la media y la varianza sean constantes a lo largo de tiempo y SIN TENDENCIA.  
+Como sabemos si es estacionaria o no?-> Analizamos la función autocorrelación
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+adf.test(gei_ts,alternative ="stationary")
+```
+
+
+*Si p-value>0.5 NO ES ESTACIONARIA, entonces convertimos a estacionaria con log o diff.*  
+
+## Logaritmo
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+serielog=log(gei_ts)
+gei_ts
+serielog
+par(bg = "#3a4757")#33516d
+plot(serielog,main="Serie Log",
+     sub = " ",
+     xlab = " ",
+     ylab=" ",
+     las = 1,
+     lwd = 3,
+     col="#D24E2E",
+     col.main = "#E2E5F2",
+     col.sub = "#E2E5F2",
+     col.lab = "#E2E5F2",
+     col.axis = "#B610A4",
+     cex.axis = 0.5,
+     cex.sub = 1,
+     cex.main = 2,
+     fg = "#2F90BA")
+```
+
+
+
+## Diferencia
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+seriedif=diff(gei_ts)
+par(bg = "#3a4757")##33516d
+plot(seriedif,main="Serie Diff",
+     sub = "",
+     xlab = " ",
+     ylab=" ",
+     las = 1,
+     lwd = 3,
+     col="#D24E2E",
+     col.main = "#E2E5F2",
+     col.sub = "#E2E5F2",
+     col.lab = "#E2E5F2",
+     col.axis = "#B610A4",
+     cex.axis = 0.5,
+     cex.sub = 1,
+     cex.main = 2,
+     fg = "#2F90BA")
+```
+
+
+*Prueba de Dickey-Fuller*
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+adf.test(seriedif,alternative ="stationary")
+```
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+par(bg = "#3a4757") ##33516d
+acf(seriedif,main="Serie Diff",
+    sub = " ",
+    xlab = " ",
+    ylab=" ",
+    las = 1,
+    lwd = 3,
+    col="#D24E2E",
+    col.main = "#E2E5F2",
+    col.sub = "#E2E5F2",
+    col.lab = "#E2E5F2",
+    col.axis = "#E2E5F2",
+    cex.axis = 0.5,
+    cex.sub = 1,
+    cex.main = 2,
+    fg = "#2F90BA")
+```
+
+
+El siguiente paso es la función de autocorrelación y la función de 
+autocorrelación parcial estas dos funciones
+nos sirven para saber cuántas medias móviles y cuántos autos regresivos vamos
+a utilizar en nuestro modelo ARIMA  
+
+Autocorrelación: nos dice la cantidad de medias móviles
+
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+par(bg = "#3a4757")##33516d
+acf(serielog,main="Serie Log ACF",
+    sub = " ",
+    xlab = " ",
+    ylab=" ",
+    las = 1,
+    lwd = 3,
+    col="#D24E2E",
+    col.main = "#E2E5F2",
+    col.sub = "#E2E5F2",
+    col.lab = "#E2E5F2",
+    col.axis = "#E2E5F2",
+    cex.axis = 0.5,
+    cex.sub = 1,
+    cex.main = 2,
+    fg = "#2F90BA")
+```
+
+
+Autocorrelación parcial: nos dice el número de autoregresivo
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+par(bg = "#3a4757")##33516d
+pacf(serielog,main="Serie Log PACF",
+     sub = " ",
+     xlab = " ",
+     ylab=" ",
+     las = 1,
+     lwd = 3,
+     col="#D24E2E",
+     col.main = "#E2E5F2",
+     col.sub = "#E2E5F2",
+     col.lab = "#E2E5F2",
+     col.axis = "#E2E5F2",
+     cex.axis = 0.5, 
+     cex.sub = 1,  
+     cex.main = 2,
+     fg = "#2F90BA")
+```
+
+
+Para este caso tenemos: un autoregresivo, una diferencias y una
+media móvil: esto es nuestro modelo
+Modelo Arima  
+
+
+#Prueba
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+modelo1=arima(gei_ts,order=c(1,2,1))
+summary(modelo1)
+```
+
+
+Los errores estandarizados deben parecerse ruido blanco
+los valores "p" del estadístico de Ljung-Box nos sirve para revisar si exsite o no existe "ruido blanco"  
+*Validez Hipotesis de Ljung-Box*  
+p> 0.5 hay ruido blanco y significa que nuestro modelo se ajusta bien  
+RUIDO BLANCO -> Media = 0, varianza constante, los errores no estan serialmente correlacionada.
+
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+error=residuals(modelo1)
+```
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+par(bg = "#3a4757")##33516d
+plot(error,main="Error",
+     sub = " ",
+     xlab = " ",
+     ylab=" ",
+     las = 1,
+     lwd = 3,
+     col="#D24E2E",
+     col.main = "#E2E5F2",
+     col.sub = "#E2E5F2",
+     col.lab = "#E2E5F2",
+     col.axis = "#E2E5F2",
+     cex.axis = 0.5,
+     cex.sub = 1,
+     cex.main = 2,
+     fg = "#2F90BA")
+```
+
+
+# Pronóstico Arima
+[Forecast](https://cran.r-project.org/web/packages/forecast/forecast.pdf)
+
+
+
+
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+pronostico=forecast::forecast(modelo1,h=10)
+#El argumento 'h' especifica el número de valores que desea pronosticar
+```
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE, results = "hide"}
+pronostico
+```
+
+
+```{r echo = TRUE, eval= TRUE, message = FALSE, warning = FALSE}
+par(bg = "#3a4757",mfrow=c(1,1), mar=c(4,4,4,1)+.1)
+plot(pronostico,main="GAS DE EFECTO INVERNADERO",
+     sub = "Inventario total de GEI de la Argentina dividido por la cantidad de habitantes",
+     xlab = " ",
+     ylab=" ",
+     las = 1,
+     lwd = 6,
+     col="#D24E2E",
+     col.main = "#E2E5F2",
+     col.sub = "#E2E5F2",
+     col.lab = "#E2E5F2",
+     col.axis = "#B610A4",
+     cex.axis = 0.5, 
+     cex.sub = 1,
+     cex.main = 2,
+     fg = "#2F90BA")
+
+```
+
+**Conclusión técnica :**  
+*PEQUEÑOS HÁBITOS, GRANDES RESULTADOS*
