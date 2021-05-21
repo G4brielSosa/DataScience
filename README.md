@@ -18,7 +18,7 @@
 #  Import Blogs as blg
 * **Gabriel Sosa:** https://bit.ly/gabososa
 * **Escuela de Datos Vivos:** https://bit.ly/eddvblog
-* **Data Science Academy:** bit.ly/DataScienceAcademy_br
+* **Data Science Academy:** http://bit.ly/DataScienceAcademy_br
 * **Sigmoidal:** https://bit.ly/sigmoidalai
 * **Data Hackers:** https://bit.ly/datahackerbr
 * **Towards Data Science** https://bit.ly/towardsds
