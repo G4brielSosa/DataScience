@@ -19,6 +19,7 @@
 * **Gabriel Sosa:** https://bit.ly/gabososa
 * **Escuela de Datos Vivos:** https://bit.ly/eddvblog
 * **Data Science Academy:** http://bit.ly/DataScienceAcademy_br
+* **R en Baires:** https://bit.ly/RenBaires
 * **Sigmoidal:** https://bit.ly/sigmoidalai
 * **Data Hackers:** https://bit.ly/datahackerbr
 * **Towards Data Science** https://bit.ly/towardsds
